@@ -9,6 +9,7 @@ const CAL_ITEMS = 8;
 const STATE = { key: 0, pa: 1, paG4: 2, bendCents: 3, vibG: 4, vibCents: 5, covering: 6 };
 const FIRST_KEY = 67; // G4, the lowest pipe
 const PIPES = 25;
+const START_KEY = 72; // C5: the lip starts on a pipe, so a breath sounds before any key is touched
 const NAMES = ["C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"];
 const BLACK = new Set([1, 3, 6, 8, 10]);
 const STORE = "panflute.phone.v1";
@@ -68,7 +69,7 @@ const meter = { db: -Infinity, clipUntil: 0 };
 
 const touches = new Map(); // pointer id -> MIDI key
 const order = []; // pointer ids, the latest last
-let sounding = null; // the key the lip is on
+let sounding = START_KEY; // the key the lip is on
 
 // --- the synth -----------------------------------------------------------------------------
 
@@ -1010,6 +1011,7 @@ async function boot() {
     }
     settings = loadSettings();
     buildKeys();
+    $("note").textContent = noteName(sounding);
     wireKeys();
     wireSheet();
     showSheet();
