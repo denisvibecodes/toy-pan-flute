@@ -1,0 +1,31 @@
+# Repo-wide editor settings — https://editorconfig.org
+# Line endings: LF everywhere. jj does not convert (see .gitattributes);
+# whatever writes a file owns its line endings.
+root = true
+
+[*]
+end_of_line = lf
+charset = utf-8
+insert_final_newline = true
+trim_trailing_whitespace = true
+indent_style = space
+indent_size = 2
+
+# the C wraps at 100 (CLAUDE.md); Markdown's length is rumdl's (.rumdl.toml)
+[*.{c,h,js}]
+indent_size = 4
+max_line_length = 100
+
+[*.{md,txt}]
+trim_trailing_whitespace = false
+indent_size = unset
+
+[LICENSE]
+indent_style = unset
+indent_size = unset
+
+[*.{wav,wasm,png}]
+end_of_line = unset
+insert_final_newline = unset
+trim_trailing_whitespace = unset
+charset = unset

@@ -1,0 +1,46 @@
+# The web page built and published on GitHub Pages at every push to main. The repo's settings
+# need Pages → Source set to "GitHub Actions".
+name: Pages
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# one deployment at a time; a newer push waits rather than cancelling one under way
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      # the Emscripten Denis builds with, so the page here is the one he played
+      - uses: mymindstorm/setup-emsdk@v14
+        with:
+          version: 6.0.13
+      # the justfile's build-wasm builds the module, its flags in one place; its shell is pwsh,
+      # which the Ubuntu runner image has
+      - uses: extractions/setup-just@v3
+      - name: Build the module
+        run: just build-wasm
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: web
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4

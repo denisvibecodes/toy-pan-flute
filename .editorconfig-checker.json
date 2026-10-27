@@ -1,0 +1,10 @@
+{
+  "Exclude": [
+    "^\\.jj/",
+    "^\\.claude/",
+    "^build/",
+    "^web/panflute\\.js$",
+    "\\.rumdl_cache/",
+    "^TMP[^/]*\\.(md|log)$"
+  ]
+}

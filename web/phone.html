@@ -1,0 +1,301 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport"
+  content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<meta name="theme-color" content="#161615">
+<title>Pan flute, phone</title>
+<link rel="icon" href="data:,">
+<style>
+:root {
+  --bg: #f7f7f5;
+  --panel: #ffffff;
+  --text: #1d1d1b;
+  --muted: #6b6b66;
+  --line: #d9d9d4;
+  --accent: #2f6fb2;
+  --warn: #b5651d;
+  --bad: #c0392b;
+  --good: #2e7d4f;
+  --trace-breath: #2f6fb2;
+  --trace-bend: #b5651d;
+  --trace-vibrato: #7b4bb3;
+  --white-key: #fbfbf8;
+  --black-key: #2a2a28;
+  --held: #2f6fb2;
+  color-scheme: light;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #161615;
+    --panel: #1f1f1e;
+    --text: #e8e8e4;
+    --muted: #9a9a93;
+    --line: #3a3a37;
+    --accent: #6fa8e0;
+    --warn: #e0a060;
+    --bad: #ef6b5b;
+    --good: #5fc08a;
+    --trace-breath: #6fa8e0;
+    --trace-bend: #e0a060;
+    --trace-vibrato: #b48be6;
+    --white-key: #d8d8d2;
+    --black-key: #0c0c0b;
+    --held: #4f8fd0;
+    color-scheme: dark;
+  }
+}
+* { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+[hidden] { display: none !important; } /* over the cover's own display: flex */
+html, body { height: 100%; }
+body {
+  margin: 0; background: var(--bg); color: var(--text); overflow: hidden;
+  overscroll-behavior: none; user-select: none; -webkit-user-select: none;
+  font: 14px/1.35 system-ui, -apple-system, "Segoe UI", sans-serif;
+}
+button {
+  font: inherit; padding: 6px 12px; border-radius: 6px; border: 1px solid var(--line);
+  background: var(--panel); color: var(--text);
+}
+button.primary { background: var(--accent); border-color: var(--accent); color: #fff; }
+.status.ok { color: var(--good); }
+.status.warn { color: var(--warn); }
+.status.bad { color: var(--bad); }
+.muted { color: var(--muted); }
+
+/* the instrument: the readouts on the left, the keys on the right */
+.play {
+  height: 100dvh; display: grid; grid-template-columns: 42% 58%;
+}
+.side {
+  display: flex; flex-direction: column; gap: 10px; padding: 10px 8px 10px 10px; min-width: 0;
+  overflow: hidden;
+}
+.side-top { display: flex; align-items: center; justify-content: space-between; gap: 6px; }
+.side-top h1 { font-size: 15px; margin: 0; }
+.note { font: 600 34px/1 ui-monospace, Consolas, monospace; }
+.gauge .label { display: flex; justify-content: space-between; font-size: 12px; }
+.gauge .label b { font-weight: 600; }
+.gauge canvas {
+  width: 100%; height: 34px; display: block; border: 1px solid var(--line); border-radius: 4px;
+  background: var(--panel);
+}
+.mini { display: flex; align-items: center; gap: 6px; margin-top: 3px; }
+.mini input[type="range"] { flex: 1; min-width: 0; margin: 0; }
+.mini canvas { flex: 1; min-width: 0; }
+.mini button { padding: 6px 8px; font-size: 13px; }
+#gain-v, #volume-v {
+  font: 12px ui-monospace, Consolas, monospace; min-width: 44px; text-align: right;
+}
+.clip { font-weight: 600; color: var(--muted); font-size: 12px; }
+.clip.on { color: var(--bad); }
+#side-status { font-size: 12px; }
+
+.keys { position: relative; touch-action: none; border-left: 1px solid var(--line); }
+.key {
+  position: absolute; right: 0; display: flex; align-items: center; justify-content: flex-end;
+  padding-right: 8px; font: 12px ui-monospace, Consolas, monospace;
+}
+.key.white {
+  left: 0; background: var(--white-key); color: #55554f; border-bottom: 1px solid #b9b9b2;
+}
+.key.black {
+  left: 0; right: 42%; background: var(--black-key); color: #9a9a93; z-index: 1;
+  border-radius: 0 4px 4px 0; justify-content: flex-start; padding-left: 6px;
+}
+.key.held { background: var(--held); color: #fff; }
+.key.sounding { box-shadow: inset 0 0 0 3px var(--accent); }
+
+/* the cover before the first tap, and the settings sheet */
+.cover {
+  position: fixed; inset: 0; z-index: 10; background: var(--bg); padding: 24px 20px;
+  display: flex; flex-direction: column; gap: 14px; justify-content: center; overflow-y: auto;
+}
+.cover h1 { margin: 0; font-size: 22px; }
+.cover p { margin: 0; }
+.cover button.primary { font-size: 18px; padding: 14px; }
+.sheet {
+  position: fixed; inset: 0; z-index: 5; background: var(--bg); overflow-y: auto;
+  padding: 12px 14px 40px; user-select: text; -webkit-user-select: text;
+}
+.sheet-top {
+  display: flex; justify-content: space-between; align-items: center; position: sticky; top: -12px;
+  background: var(--bg); padding: 8px 0;
+}
+.sheet h2 {
+  font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.06em;
+  color: var(--muted); margin: 18px 0 6px;
+}
+.sheet p { margin: 0 0 8px; }
+.marks { display: grid; grid-template-columns: 1fr 72px auto; gap: 6px; align-items: center; }
+.marks input, .sheet select {
+  font: inherit; padding: 4px; border-radius: 4px; border: 1px solid var(--line);
+  background: var(--panel); color: var(--text); width: 72px;
+}
+.sheet select { width: auto; }
+.marks .now { grid-column: 1 / -1; font: 12px ui-monospace, Consolas, monospace; }
+.row { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin: 6px 0; }
+.row input[type="range"] { flex: 1; min-width: 140px; }
+#sheet-status { min-height: 1.4em; font-size: 13px; }
+</style>
+</head>
+<body>
+<div class="play">
+  <div class="side">
+    <div class="side-top">
+      <h1>Pan flute</h1>
+      <button id="open-sheet">Settings</button>
+    </div>
+    <div><span id="note" class="note">–</span></div>
+    <div class="gauge">
+      <div class="label"><b>Breath</b><span id="t-breath"></span></div>
+      <canvas id="g-breath"></canvas>
+      <div class="mini">
+        <input id="gain" type="range" min="-20" max="20" step="1" aria-label="Microphone gain">
+        <span id="gain-v"></span>
+      </div>
+    </div>
+    <div class="gauge">
+      <div class="label"><b>Bend</b><span id="t-bend"></span></div>
+      <div class="mini">
+        <canvas id="g-bend"></canvas>
+        <button id="set-rest" title="The angle of the last second becomes the rest">Rest</button>
+      </div>
+    </div>
+    <div class="gauge">
+      <div class="label"><b>Vibrato</b><span id="t-vibrato"></span></div>
+      <canvas id="g-vibrato"></canvas>
+    </div>
+    <div class="gauge">
+      <div class="label"><b>Output</b><span id="clip" class="clip">CLIP</span></div>
+      <canvas id="g-out"></canvas>
+      <div class="mini">
+        <input id="volume" type="range" min="-30" max="6" step="1" aria-label="Volume">
+        <span id="volume-v"></span>
+      </div>
+    </div>
+    <div id="side-status" class="status muted"></div>
+  </div>
+  <div id="keys" class="keys"></div>
+</div>
+
+<div id="cover" class="cover">
+  <h1>Pan flute, phone</h1>
+  <p>Hold the phone like a recorder: its bottom edge, where the microphone is, under your lower
+    lip, the screen towards you, the phone pointing away and down. Blow across the bottom edge;
+    tilt the phone further down to cover the pipe and bend the note; wobble it left and right
+    for vibrato. The keys are on the right, for the right hand.</p>
+  <p class="muted">The page asks for the microphone; it hears only your breath and nothing leaves
+    the phone. Headphones keep the flute out of the microphone.</p>
+  <p id="cover-status" class="status muted">Loading the synth…</p>
+  <button id="start" class="primary" disabled>Tap to play</button>
+  <a href="index.html">The page for a MIDI keyboard and breath controller</a>
+</div>
+
+<div id="sheet" class="sheet" hidden>
+  <div class="sheet-top">
+    <b>Settings</b>
+    <button id="close-sheet" class="primary">Done</button>
+  </div>
+  <p id="sheet-status" class="muted"></p>
+
+  <h2>Breath: the microphone</h2>
+  <p class="muted">The level of your breath's noise in the microphone, dB, after the gain beside
+    the breath's gauge. Hold each for a second, then press its <b>Set</b>: the floor in silence,
+    pp blowing gently, mf at your usual breath, ff hard. Under the floor there is no breath. The
+    gain then moves all four together.</p>
+  <div class="marks" id="marks-mic"></div>
+  <p class="muted">The breath is smoothed: it rises toward a stronger breath within the rise time
+    and falls toward a weaker one over the fall time. A longer fall evens out a choppy breath; a
+    longer rise softens the attacks and delays them.</p>
+  <div class="row">
+    <label for="rise">Rise</label>
+    <input id="rise" type="range" min="0" max="100" step="5">
+    <span id="rise-v"></span>
+  </div>
+  <div class="row">
+    <label for="fall">Fall</label>
+    <input id="fall" type="range" min="0" max="300" step="10">
+    <span id="fall-v"></span>
+  </div>
+  <div class="row">
+    <label for="source">Breath from</label>
+    <select id="source">
+      <option value="mic">the microphone</option>
+      <option value="touch">the keys (a held key blows mf)</option>
+    </select>
+  </div>
+
+  <h2>Bend: tilting down</h2>
+  <p class="muted">The angle of the phone's long axis below level, degrees. Hold the phone as you
+    play with the pipe open and press <b>Set</b> on rest (or <b>Rest</b> beside the bend's
+    gauge); tilt it down to the whole tone and press <b>Set</b> on the whole tone, which keeps
+    how far below the rest it is. The semitone is held a third of the way. Tilting up from the
+    rest bends nothing.</p>
+  <div class="marks" id="marks-tilt"></div>
+
+  <h2>Vibrato: the left-right wobble</h2>
+  <p class="muted">The phone's sideways tilt, g, band-passed at 2.5 to 8 Hz, a hand vibrato's
+    rates: a held lean, a slow sway and the hand's tremor bend nothing; only the wobble is
+    heard. A compressor keeps a wide wobble near the ceiling: it turns the
+    depth down within a fifth of a second and gives it back over three seconds.</p>
+  <div class="row">
+    <label for="depth">Depth</label>
+    <input id="depth" type="range" min="0" max="300" step="5">
+    <span id="depth-v"></span>
+  </div>
+  <div class="row">
+    <label for="ceiling">Ceiling</label>
+    <input id="ceiling" type="range" min="3" max="40" step="1">
+    <span id="ceiling-v"></span>
+  </div>
+
+  <h2>Keys and sound</h2>
+  <div class="row">
+    <label for="order">Low notes</label>
+    <select id="order">
+      <option value="top">at the far end (top)</option>
+      <option value="bottom">at the mouth (bottom)</option>
+    </select>
+  </div>
+  <div class="row">
+    <label for="reverb">Reverb</label>
+    <select id="reverb"><option value="on">on</option><option value="off">off</option></select>
+  </div>
+
+  <h2>Latency</h2>
+  <p class="muted">The phone beeps five times and listens for each beep in the microphone: the
+    time is the speaker's and the microphone's delays together, as your breath has them, plus a
+    few milliseconds of air. Stay quiet while it measures. Wired headphones only: Bluetooth adds
+    a fifth of a second.</p>
+  <div class="row">
+    <button id="measure">Measure</button>
+    <span id="measured" class="muted"></span>
+  </div>
+  <div class="row">
+    <label for="route">Microphone by</label>
+    <select id="route">
+      <option value="direct">the direct route (quicker)</option>
+      <option value="webaudio">Web Audio's input</option>
+    </select>
+  </div>
+  <div class="row">
+    <label for="rate">Sound at</label>
+    <select id="rate">
+      <option value="native">the phone's own rate</option>
+      <option value="44100">44.1 kHz, the synth's</option>
+    </select>
+    <span class="muted">(applies on reload)</span>
+  </div>
+
+  <h2>This phone</h2>
+  <p id="info" class="muted"></p>
+  <div class="row">
+    <button id="reset">Reset the settings</button>
+    <a href="index.html">The MIDI page</a>
+  </div>
+</div>
+<script type="module" src="phone.js"></script>
+</body>
+</html>

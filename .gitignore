@@ -1,0 +1,15 @@
+/TMP*.md
+# build outputs
+/build/
+/web/panflute.wasm
+/web/panflute.js
+*.obj
+*.exe
+*.o
+# the Emscripten SDK's cache, if it is installed beside the repo
+/emsdk/
+# Claude Code's own state stays out
+/.claude/*
+!/.claude/settings.json
+# Python bytecode (tools/)
+__pycache__/

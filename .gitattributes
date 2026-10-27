@@ -1,0 +1,8 @@
+# No line-ending conversion, ever: files are committed byte-for-byte as
+# written (LF is enforced at the editor/tool level by .editorconfig). Matches
+# jj, which never converts line endings.
+* -text
+
+*.wav binary
+*.wasm binary
+*.png binary

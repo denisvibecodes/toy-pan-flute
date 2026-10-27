@@ -1,0 +1,14 @@
+# The Markdown linter (`just check-md`; `just fmt-md` applies the fixes). Every text file
+# wraps at 100 columns (CLAUDE.md).
+[global]
+line-length = 100
+exclude = ["TMP*.md"]
+
+[MD013]
+line-length = 100
+# a code block or a table row may run longer
+code-blocks = false
+tables = false
+# `rumdl fmt` rewraps a paragraph to the limit; `just fmt-md <file>` is how a line over 100 is
+# mended, never by hand
+reflow = true
