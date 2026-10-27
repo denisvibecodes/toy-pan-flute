@@ -232,8 +232,15 @@ button.primary { background: var(--accent); border-color: var(--accent); color: 
     play with the pipe open and press <b>Set</b> on rest (or <b>Rest</b> beside the bend's
     gauge); tilt it down to the whole tone and press <b>Set</b> on the whole tone, which keeps
     how far below the rest it is. The semitone is held a third of the way. Tilting up from the
-    rest bends nothing.</p>
+    rest bends nothing. The angle is low-passed before it bends: the vibrato's wobble leaks into
+    it, and a cutoff under the wobble's 2.5 to 8 Hz keeps it out. Lower is steadier, higher
+    follows a quick bend sooner.</p>
   <div class="marks" id="marks-tilt"></div>
+  <div class="row">
+    <label for="bend-hz">Low-pass</label>
+    <input id="bend-hz" type="range" min="0.5" max="10" step="0.5">
+    <span id="bend-hz-v"></span>
+  </div>
 
   <h2>Vibrato: the left-right wobble</h2>
   <p class="muted">The phone's sideways tilt, g, band-passed at 2.5 to 8 Hz, a hand vibrato's

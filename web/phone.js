@@ -64,6 +64,10 @@ let feedError = null; // why the direct route failed, Web Audio's input taking o
 const mic = { db: -Infinity };
 const history = { mic: [], tilt: [] }; // [time in ms, value]
 let bendX = 0; // the bend before rounding, for the hysteresis
+// The bend's low-pass, a second-order Butterworth below the vibrato's band: the wobble's share
+// of the long axis's angle (the wrist's axis off the phone's, the sideways push) bends nothing.
+// It starts at the first angle read.
+const bendLp = { ic1: 0, ic2: null };
 let synthState = null;
 const meter = { db: -Infinity, clipUntil: 0 };
 
@@ -122,6 +126,9 @@ async function loadSynth() {
         breathFallMs: 60,
         // The recorder's hold is about 35 degrees down; 25 more is the whole tone.
         tilt: { rest: 35, range: 25 },
+        // The bend's low-pass, Hz: at 2 Hz the wobble is 16 dB down at 5 Hz, the bend lags
+        // about 0.1 s.
+        bendHz: 2,
         depth: cal[CAL.depth],
         ceiling: 9, // cents
         rate: "native",
@@ -343,10 +350,12 @@ function onMotion(e) {
     }
     remember(history.tilt, sensor.theta);
 
-    bendX = bendValue(sensor.theta);
+    const s = dt / 1000;
+    if (bendLp.ic2 === null) Object.assign(bendLp, { ic1: 0, ic2: sensor.theta }); // at rest
+    const bendTheta = svf(bendLp, sensor.theta, settings.bendHz, s).lp;
+    bendX = bendValue(bendTheta);
     const b = Math.round(bendX);
     if (b !== values.bend && Math.abs(bendX - values.bend) > HYSTERESIS) control("bend", b);
-    const s = dt / 1000;
     const band = svf(vib.lp, svf(vib.hp, sensor.gx, VIBRATO_LOW_HZ, s).hp, VIBRATO_HIGH_HZ, s).lp;
     const v = Math.round(VIBRATO_CENTRE + VIBRATO_PER_G * band);
     control("vibrato", Math.max(0, Math.min(127, v)));
@@ -626,6 +635,7 @@ function loadSettings() {
         delete tilt.full;
     }
     if (finite(tilt, ["rest", "range"]) && tiltOk(tilt)) s.tilt = tilt;
+    if (Number.isFinite(saved.bendHz)) s.bendHz = Math.max(0.5, Math.min(10, saved.bendHz));
     if (Number.isFinite(saved.depth)) s.depth = Math.max(0, Math.min(300, saved.depth));
     if (Number.isFinite(saved.ceiling)) s.ceiling = Math.max(3, Math.min(40, saved.ceiling));
     if (["native", "44100"].includes(saved.rate)) s.rate = saved.rate;
@@ -738,6 +748,11 @@ function wireSheet() {
         $("ceiling-v").textContent = `±${settings.ceiling} c`;
     });
     $("ceiling").addEventListener("change", saveSettings);
+    $("bend-hz").addEventListener("input", () => {
+        settings.bendHz = Number($("bend-hz").value);
+        $("bend-hz-v").textContent = `${settings.bendHz} Hz`;
+    });
+    $("bend-hz").addEventListener("change", saveSettings);
     $("rate").addEventListener("change", () => {
         settings.rate = $("rate").value;
         saveSettings();
@@ -826,6 +841,8 @@ function showSheet() {
     $("depth-v").textContent = `${settings.depth} c/g`;
     $("ceiling").value = settings.ceiling;
     $("ceiling-v").textContent = `±${settings.ceiling} c`;
+    $("bend-hz").value = settings.bendHz;
+    $("bend-hz-v").textContent = `${settings.bendHz} Hz`;
     $("rate").value = settings.rate;
     $("route").value = settings.route;
     showGain();
