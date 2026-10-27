@@ -124,8 +124,8 @@ async function loadSynth() {
         // over 60 ms, so the wind noise's dips do not chop it.
         breathRiseMs: 15,
         breathFallMs: 60,
-        // The recorder's hold is about 35 degrees down; 25 more is the whole tone.
-        tilt: { rest: 35, range: 25 },
+        // Held flat, the vibrato's wobble is cleanest; 25 degrees down is the whole tone.
+        tilt: { rest: 0, range: 25 },
         // The bend's low-pass, Hz: at 2 Hz the wobble is 16 dB down at 5 Hz, the bend lags
         // about 0.1 s.
         bendHz: 2,

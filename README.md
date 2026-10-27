@@ -50,16 +50,18 @@ O 0 P), ↑ and ↓ shift the octave, and a held key blows a steady breath at th
 
 ### On a phone
 
-`phone.html`, served beside the page, plays the flute on a phone held like a recorder: the bottom
-edge, where the microphone is, under the lower lip, the screen towards the player, the phone
-pointing away and down. The breath is the level of the wind noise the blowing makes in the
+`phone.html`, served beside the page, plays the flute on a phone held flat in front of the
+player, the screen up, the bottom edge, where the microphone is, under the lower lip: the breath
+still reaches the microphone on Denis's phone, and the vibrato's wobble is cleanest there. The
+breath is the level of the wind noise the blowing makes in the
 microphone, low-passed at 150 Hz (the pipes start at G4, 392 Hz, and a phone's speaker gives
 little under 300 Hz, so the flute heard back is mostly filtered out), with a gain beside its
 gauge, then smoothed, rising within 15 ms and falling over 60 ms (Settings sets both); the bend
-is the phone tilted further down from its rest, the lip covering the pipe (tilted up, nothing),
-the Rest button beside its gauge taking the last second's angle as the rest; the vibrato is the
+is the phone's far end tilted down from its rest, the lip covering the pipe (tilted up,
+nothing), the Rest button beside its gauge taking the last second's angle as the rest, the
+angle low-passed at 2 Hz (Settings sets it) so the wobble does not bend; the vibrato is the
 phone's left-right wobble, the accelerometer's sideways reading in g, band-passed at 2.5 to 8 Hz
-(a hand vibrato's rates), through a compressor that keeps a wide wobble near ±9 c (it turns the
+(a hand vibrato's rates), through a compressor that keeps a wide wobble near ±5 c (it turns the
 depth down within 0.2 s and gives it back over 3 s). The 25 keys are a
 piano's keyboard stood on end on the right of the screen, the low notes at the far end (Settings
 turns them round); a finger lifted goes back to the latest key still held. Settings sets the
