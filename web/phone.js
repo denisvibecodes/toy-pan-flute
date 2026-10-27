@@ -129,8 +129,9 @@ async function loadSynth() {
         // The bend's low-pass, Hz: at 2 Hz the wobble is 16 dB down at 5 Hz, the bend lags
         // about 0.1 s.
         bendHz: 2,
-        depth: cal[CAL.depth],
-        ceiling: 9, // cents
+        // The vibrato's defaults on the phone, set by Denis's ear: a light wobble, held near ±5 c.
+        depth: 10, // c/g
+        ceiling: 5, // cents
         rate: "native",
         route: "direct",
         order: "top",
